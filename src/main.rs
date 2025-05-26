@@ -45,19 +45,38 @@ mod people {
         pub mod editor {
             use super::*;
             use crate::widgets::Editable;
+            use eframe::{
+                egui::widgets::{DragValue, TextEdit},
+                egui::{vec2, Grid},
+            };
             pub struct PersonEditor<'a> {
                 pub data: &'a mut Person,
             }
             impl<'a> Widget for PersonEditor<'a> {
                 fn ui(self, ui: &mut Ui) -> Response {
-                    ui.vertical(|ui| {
-                        ui.label("given name");
-                        ui.text_edit_singleline(&mut self.data.first);
-                        ui.label("family name");
-                        ui.text_edit_singleline(&mut self.data.last);
-                        ui.label("age");
-                    })
-                    .response
+                    Grid::new(format!("{}_editor_form", self.data.to_string()))
+                        .spacing(vec2(8.0, 4.0))
+                        .striped(false)
+                        .show(ui, |ui| {
+                            ui.label("given name");
+                            ui.add(
+                                TextEdit::singleline(&mut self.data.first)
+                                    .min_size(vec2(128.0, 0.0)),
+                            );
+                            ui.end_row();
+
+                            ui.label("family name");
+                            ui.add(
+                                TextEdit::singleline(&mut self.data.last)
+                                    .min_size(vec2(128.0, 0.0)),
+                            );
+                            ui.end_row();
+
+                            ui.label("age");
+                            ui.add(DragValue::new(&mut self.data.age));
+                            ui.end_row();
+                        })
+                        .response
                 }
             }
             impl Editable for Person {
@@ -96,11 +115,43 @@ mod widgets {
         pub data: &'a mut T,
     }
 
+    fn framed_demo<R>(
+        ui: &mut eframe::egui::Ui,
+        title: &str,
+        inner: impl FnOnce(&mut eframe::egui::Ui) -> R,
+    ) -> R {
+        use eframe::egui::{vec2, Frame, Grid, RichText};
+
+        Frame::group(ui.style())
+            .inner_margin(8.0)
+            .show(ui, |ui| {
+                Grid::new(format!("{}_grid", title))
+                    .spacing(vec2(8.0, 4.0))
+                    .striped(false)
+                    .show(ui, |ui| {
+                        ui.vertical_centered(|ui| {
+                            ui.label(RichText::new(title).strong());
+                        });
+                        ui.end_row();
+                        inner(ui)
+                    })
+                    .inner
+            })
+            .inner
+    }
+
     impl<'a, T: Editable + 'a> App for TopLevel<'a, T> {
         fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
             CentralPanel::default().show(ctx, |ui| {
-                ui.add(self.data.get_viewer());
-                ui.add(self.data.get_editor());
+                framed_demo(ui, "viewer", |ui| {
+                    ui.add(self.data.get_viewer());
+                });
+
+                ui.add_space(8.0);
+
+                framed_demo(ui, "editor", |ui| {
+                    ui.add(self.data.get_editor());
+                });
             });
         }
     }
@@ -119,9 +170,29 @@ mod widgets {
             run_native(app_title, app_options, app_creator)
         }
     }
+    pub mod helpers {
+        use eframe::egui::{Align, InnerResponse, Layout, Ui};
+        pub trait UiLayoutExt {
+            fn horizontal_right<R>(
+                &mut self,
+                add_contents: impl FnOnce(&mut Ui) -> R,
+            ) -> InnerResponse<R>;
+        }
+
+        impl UiLayoutExt for Ui {
+            fn horizontal_right<R>(
+                &mut self,
+                add_contents: impl FnOnce(&mut Ui) -> R,
+            ) -> InnerResponse<R> {
+                self.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                    add_contents(ui)
+                })
+            }
+        }
+    }
 }
 use widgets::TopLevel;
-pub use widgets::{Editable, Viewable};
+pub use widgets::{helpers::UiLayoutExt, Editable, Viewable};
 fn main() -> Result<(), eframe::Error> {
     let mut person = Person::new("McLovin", "", 21);
     TopLevel::new(&mut person).launch()
