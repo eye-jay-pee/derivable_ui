@@ -2,6 +2,7 @@ use std::fmt;
 
 pub mod widgets;
 
+#[derive(Clone)]
 pub struct Person {
     first: String,
     last: String,
