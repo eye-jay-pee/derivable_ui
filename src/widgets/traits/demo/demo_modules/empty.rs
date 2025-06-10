@@ -15,4 +15,8 @@ impl<'a, T: ?Sized> Demo<'a, T> for EmptyDemo<'a, T> {
             ui.label("empty demo")
         }))
     }
+    fn show(self, ui: &mut Ui) -> Response {
+        let closure = self.get();
+        closure(ui)
+    }
 }

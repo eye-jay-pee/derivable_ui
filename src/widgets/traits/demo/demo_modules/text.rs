@@ -15,4 +15,8 @@ impl<'a, D: Display> Demo<'a, D> for TextDemo<'a, D> {
             ui.label(self.data.to_string())
         }))
     }
+    fn show(self, ui: &mut Ui) -> Response {
+        let closure = self.get();
+        closure(ui)
+    }
 }

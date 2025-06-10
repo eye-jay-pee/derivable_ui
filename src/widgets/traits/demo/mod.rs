@@ -1,27 +1,16 @@
-use crate::{Editable, Viewable};
-use eframe::egui::{Response, Ui};
-use std::fmt::Display;
+//use crate::{Editable, Viewable};
+//use std::fmt::Display;
 
-pub trait Demo<'a, D: ?Sized> {
-    type DemoClosure: FnOnce(&mut Ui) -> eframe::egui::Response + 'a;
+//pub use demo_modules::{EditDemo, EmptyDemo, TextDemo, ViewDemo};
 
-    fn new(data: &'a D) -> Self
-    where
-        Self: Sized;
+//pub DemoEngine<'a, S: ?Sized, D: Display, V: Viewable, E: Editable> {
+//    Empty(EmptyDemo<'a, S>),
+//    TextOnly(TextDemo<'a, D>),
+//    GraphicalReadonly(ViewDemo<'a, V>),
+//    FullGraphicalEditor(EditDemo<'a, E>),
+//}
+//impl<'a, S: ?Sized
 
-    fn get(self) -> Self::DemoClosure;
-}
-
-pub mod demo_modules;
-pub use demo_modules::{EditDemo, EmptyDemo, TextDemo, ViewDemo};
-
-//pub enum DemoEngine<'a, S: ?Sized, D: Display, V: Viewable, E: Editable> {
-//     Empty(EmptyDemo<'a, S>),
-//     TextOnly(TextDemo<'a, D>),
-//     GraphicalReadonly(ViewDemo<'a, V>),
-//     FullGraphicalEditor(EditDemo<'a, E>),
-// }
-//
 // impl<'a, S: ?Sized, D: Display, V: Viewable, E: Editable>
 //     DemoEngine<'a, S, D, V, E>
 // {

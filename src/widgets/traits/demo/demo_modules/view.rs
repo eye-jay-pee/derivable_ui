@@ -15,4 +15,8 @@ impl<'a, V: Viewable> Demo<'a, V> for ViewDemo<'a, V> {
             ui.add(self.data.get_viewer())
         }))
     }
+    fn show(self, ui: &mut Ui) -> Response {
+        let closure = self.get();
+        closure(ui)
+    }
 }

@@ -17,4 +17,8 @@ impl<'a, E: Editable + Clone> Demo<'a, E> for EditDemo<'a, E> {
             ui.add(data_buffer.get_editor())
         }))
     }
+    fn show(self, ui: &mut Ui) -> Response {
+        let closure = self.get();
+        closure(ui)
+    }
 }
