@@ -1,5 +1,5 @@
 mod traits;
-pub use traits::{Editable, Viewable};
+pub use traits::{all_demos, Editable, Viewable};
 
 use eframe::{
     egui::{CentralPanel, Context, Key, ViewportCommand},
@@ -21,9 +21,8 @@ impl<'a, T: Editable + 'a> App for TopLevel<'a, T> {
                 ctx_clone.send_viewport_cmd(ViewportCommand::Close);
             });
         } else {
-            CentralPanel::default().show(ctx, |ui| {
-                ui.label("self.demo");
-            });
+            let root_closure = all_demos(self.data);
+            CentralPanel::default().show(ctx, root_closure);
         }
     }
 }
